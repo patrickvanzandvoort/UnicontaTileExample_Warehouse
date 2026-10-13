@@ -1,0 +1,200 @@
+<UserControl x:Class="Plugin.Uniconta.TileDemo.Tiles.WarehouseStatusTile"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:Plugin.Uniconta.TileDemo.Models"
+             xmlns:tiles="clr-namespace:UnicontaClient.Pages;assembly=UnicontaPages"
+             Background="{DynamicResource LightBackground}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanVisibility" />
+
+        <!-- Status colors -->
+        <SolidColorBrush x:Key="RedStatusBrush"
+                         Color="{DynamicResource ChartErrorColor}" />
+        <SolidColorBrush x:Key="YellowStatusBrush"
+                         Color="{DynamicResource ChartWarningColor}" />
+        <SolidColorBrush x:Key="GreenStatusBrush"
+                         Color="{DynamicResource ChartSuccessColor}" />
+        <SolidColorBrush x:Key="BlueStatusBrush"
+                         Color="{DynamicResource ChartInfoColor}" />
+        <SolidColorBrush x:Key="OrangeStatusBrush"
+                         Color="{DynamicResource ChartSeries2Color}" />
+
+        <Style x:Key="StatusIndicator" TargetType="Ellipse">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="StrokeThickness" Value="0"/>
+            <Setter Property="Fill" Value="Gray"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}"
+                     Value="{x:Static models:WarehouseStatus.Red}">
+                    <Setter Property="Fill" Value="#EF4444"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Status}"
+                     Value="{x:Static models:WarehouseStatus.Yellow}">
+                    <Setter Property="Fill" Value="#F59E0B"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Status}"
+                     Value="{x:Static models:WarehouseStatus.Green}">
+                    <Setter Property="Fill" Value="#22C55E"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Status}"
+                     Value="{x:Static models:WarehouseStatus.Blue}">
+                    <Setter Property="Fill" Value="#3B82F6"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Status}"
+                     Value="{x:Static models:WarehouseStatus.Orange}">
+                    <Setter Property="Fill" Value="#F97316"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- Main layout -->
+    <Grid x:Name="tileLayout"
+          Margin="14,12,14,10"
+          ClipToBounds="True">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0"
+              Margin="0,0,0,12">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        VerticalAlignment="Center">
+
+                <TextBlock Text="Warehouse Operations"
+                           FontSize="17"
+                           FontWeight="SemiBold"
+                           TextTrimming="CharacterEllipsis"
+                           ToolTip="Warehouse Operations"
+                           Foreground="{DynamicResource ForegroundBrush}" />
+
+                <TextBlock Text="Warehouse activity summary"
+                           FontSize="10"
+                           Margin="0,2,0,0"
+                           Opacity="0.65"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource ForegroundBrush}" />
+            </StackPanel>
+
+            <tiles:TileButton Grid.Column="1"
+                              Glyph="Refresh_16x16.svg"
+                              Content=""
+                              Width="36"
+                              Height="28"
+                              Padding="4"
+                              Margin="8,0,0,0"
+                              VerticalAlignment="Center"
+                              Variant="Primary"
+                              IsEnabled="{Binding CanRefresh}"
+                              Click="Refresh_Click"
+                              ToolTip="Reload warehouse demonstration data"
+                              AutomationProperties.Name="Refresh warehouse data" />
+        </Grid>
+
+        <!-- ACTIVITIES -->
+        <Grid Grid.Row="1"
+              MinHeight="0"
+              ClipToBounds="True">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+
+                <ItemsControl ItemsSource="{Binding Activities}">
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+
+                            <Border BorderBrush="{DynamicResource LightBackgroundComponentBorder}"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="0,6">
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto"
+                                                          MinWidth="46" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Status -->
+                                    <Ellipse Grid.Column="0"
+                                             Style="{StaticResource StatusIndicator}"
+                                             ToolTip="{Binding Status}"
+                                             AutomationProperties.Name="{Binding Status}"
+                                             HorizontalAlignment="Left" />
+
+                                    <!-- Activity -->
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Activity}"
+                                               TextWrapping="Wrap"
+                                               FontSize="12"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0" />
+
+                                    <!-- Count -->
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Count, StringFormat=N0}"
+                                               FontSize="22"
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource ForegroundBrush}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Empty state -->
+            <TextBlock Text="No warehouse activities found. Use Refresh after adding demo data."
+                       Visibility="{Binding IsEmpty, Converter={StaticResource BooleanVisibility}}"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource ForegroundBrush}"
+                       Opacity="0.7"
+                       Margin="8" />
+
+            <!-- Error state -->
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Visibility="{Binding HasError, Converter={StaticResource BooleanVisibility}}"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource ForegroundBrush}"
+                       Margin="8" />
+        </Grid>
+
+        <!-- FOOTER -->
+        <TextBlock Grid.Row="2"
+                   Text="Demonstration data · not live Uniconta data"
+                   FontSize="9"
+                   Opacity="0.65"
+                   Margin="0,8,0,0"
+                   TextTrimming="CharacterEllipsis"
+                   ToolTip="Demonstration data · not live Uniconta data"
+                   Foreground="{DynamicResource ForegroundBrush}" />
+
+    </Grid>
+</UserControl>
